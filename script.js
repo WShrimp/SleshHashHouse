@@ -25,6 +25,7 @@ const fail_container = document.querySelector('.fail-container');
 const menu_container = document.querySelector('.menu-container')
 const upgrade_container = document.querySelector('.upgrade-container')
 const lives_display = document.getElementById('lives')
+const score_display = document.getElementById('max-score')
 
 const monster_images_count = 11
 const human_images_count = 8
@@ -50,7 +51,7 @@ const heart_image = 'images/heart.png'
 
 // savable
 let day = 0
-let money = 0
+let money = 50 // also in reset btw
 let customers_left = 1
 let min_wait_time = 3
 // let lives
@@ -63,18 +64,19 @@ let plate_given = false
 let is_monster = true
 let full_order = []
 let full_plate = []
+let score = 0
 
 run_upgrades={
-    'max_ingredients': {name: '+ 1 max ingredients', type: 'add', value: 3, max: 3, level: 0},
-    'money_multiplier': {name: '20% tips', type: 'multiply', value: 1.2, max: 5, level: 0},
-    'animation_speed': {name: 'faster animation speed', type: 'add', value: 1, max: 1, level: 0},
-    'additional_customer_time': {name: 'customer patience', type: 'add', value: 0, max: 5, level: 0},
-    'additional_day_time': {name: 'longer day time', type: 'multiply', value: 30, max: 5, level: 0},
-    'faster_cooking_multiplier': {name: 'faster cooking', type: 'multiply', value: 1.1, max: 5, level: 0},
-    'starting_money': {name: 'starting money + 50', type: 'multiply', value: 50, max: 5, level: 0},
-    'click_power': {name: 'click power', type: 'multiply', value: 1.2, max: 5, level: 0},
-    'money': {name: 'money + 100', type: 'money', value: 100, max: 500, level: 0},
-    'lives': {name: 'lives + 1', type: 'lives', value: 3, max: 500, level: 0},
+    'max_ingredients': {name: '+ 1 max ingredients', type: 'add', base_value: 3, value: 3, max: 3, level: 0},
+    'money_multiplier': {name: 'more tips', type: 'multiply', base_value: 1.2, value: 1.2, max: 5, level: 0},
+    'animation_speed': {name: 'faster animation speed', type: 'add', base_value: 1, value: 1, max: 1, level: 0},
+    'additional_customer_time': {name: 'customer patience', type: 'add', base_value: 0, value: 0, max: 5, level: 0},
+    'additional_day_time': {name: 'longer day time', type: 'multiply', base_value: 30, value: 30, max: 5, level: 0},
+    'faster_cooking_multiplier': {name: 'faster cooking', type: 'multiply', baswe_value: 1.1, value: 1.1, max: 5, level: 0},
+    'starting_money': {name: 'starting money', type: 'multiply', base_value: 50, value: 50, max: 5, level: 0},
+    'click_power': {name: 'click power', type: 'multiply', base_value: 1.25, value: 1.2, max: 5, level: 0},
+    'money': {name: 'money + 100', type: 'money', base_value: 100, value: 100, max: 500, level: 0},
+    'lives': {name: 'lives + 1', type: 'lives', base_value: 3, value: 3, max: 500, level: 0},
 }
 
 ingredients_dictionary={ 
@@ -92,16 +94,27 @@ ingredients_dictionary={
 //     "m-meat": 1
 // };
 
-
-if (localStorage.getItem('run_upgrades')) {
-    save_found_menu()
+if (localStorage.getItem('score')) {
+    score_display.innerText = 'MAX SCORE: DAY ' + localStorage.getItem('score')
+    if (localStorage.getItem('score') == 'null') {
+        score_display.innerText = 'MAX SCORE: DAY 0'
+    } else {
+        save_found()
+    }
 }
 
 function save() {
+    console.log('SAVING DATA')
     localStorage.setItem('run_upgrades', JSON.stringify(run_upgrades))
     localStorage.setItem('ingredients_dictionary', JSON.stringify(ingredients_dictionary))
     localStorage.setItem('day', day)
     localStorage.setItem('money', money)
+    score = day
+    if (localStorage.getItem('score') && localStorage.getItem('score') < score){
+        localStorage.setItem('score', score)
+        console.log('writing new score')
+    }
+    localStorage.setItem('score', score)
 }
 
 function load() {
@@ -112,11 +125,14 @@ function load() {
         ingredients_dictionary[ingredient].count = 0
     }
 
+
     day = JSON.parse(localStorage.getItem('day'))
     money = JSON.parse(localStorage.getItem('money'))
 }
 
 function delete_data() {
+    console.log('DELETING DATA')
+    localStorage.removeItem('score')
     localStorage.removeItem('run_upgrades')
     localStorage.removeItem('ingredients_dictionary')
     localStorage.removeItem('day')
@@ -150,7 +166,7 @@ function create_buttons(ingredient) {
         buy.id = `buy-${ingredient}`
         buy.className = 'item-button'
         ingredient_type = ingredients_dictionary[ingredient].type
-        buy.textContent = '$' + Math.round(Math.pow(ingredients_dictionary[ingredient].difficulity, 1.3)/5)
+        buy.textContent = '$' + calculate_buy_price(ingredient)
         buy.style.order = '10'
         kitchen.appendChild(buy)
         buy.addEventListener('click', function() {
@@ -190,8 +206,9 @@ function create_buttons(ingredient) {
 
 
 function buy_ingredient(ingredient) {
-    if (money < ingredients_dictionary[ingredient].difficulity) {return}
-    money -= ingredients_dictionary[ingredient].difficulity
+    if (money < calculate_buy_price(ingredient)) {return}
+    money -= calculate_buy_price(ingredient)
+    money_display.textContent = '$' + money
     const buy_button = document.getElementById(`buy-${ingredient}`)
     buy_button.remove()
     let purchasedType = ingredients_dictionary[ingredient].type
@@ -239,7 +256,7 @@ function update_hearts() {
 function day_start(){
     save()
     update_hearts()
-    money += run_upgrades['starting_money'].value
+    money += run_upgrades['starting_money'].value * run_upgrades['starting_money'].level
     // money = 100000
     money_display.textContent = '$' + money
     let minutes = day_min_time
@@ -247,6 +264,8 @@ function day_start(){
     if (run_upgrades['additional_day_time'].level > 0){
         seconds = 0 + run_upgrades['additional_day_time'].value}
     day += 1
+    score = day
+    console.log(score)
     let day_goal = 100 * day
     goal_display.textContent = `Day Goal: ` + `$${day_goal}`
     customer_appear()
@@ -357,7 +376,9 @@ function upgrade_ingredient(upgrade_button, ingredient, cost){
 function calculate_price(ingredient) {
     return Math.round ((ingredients_dictionary[ingredient].difficulity * 1.7 + ingredients_dictionary[ingredient].level * 20)/5)
 }
-
+function calculate_buy_price(ingredient) {
+    return Math.round(Math.pow(ingredients_dictionary[ingredient].difficulity, 1.3)/5)
+}
 
 
 // add_ingredient('m-meat')
@@ -587,7 +608,7 @@ function update_run_upgrades(upgrade_id) {
         run_upgrades[upgrade_id].value += run_upgrades[upgrade_id].level
     }
     if (run_upgrades[upgrade_id].type == 'multiply') {
-        run_upgrades[upgrade_id].value *= run_upgrades[upgrade_id].level
+        run_upgrades[upgrade_id].value = run_upgrades[upgrade_id].base_value * run_upgrades[upgrade_id].level
     }
     if (run_upgrades[upgrade_id].type == 'money') {
         run_upgrades[upgrade_id].level -= 1
@@ -601,7 +622,8 @@ function update_run_upgrades(upgrade_id) {
 }
 
 
-function save_found_menu() {
+function save_found() {
+    // score_display.innerText = 'MAX SCORE: DAY ' + score
     menu.style.display = 'flex'
     menu_container.style.display = 'flex'
     const continue_button = document.createElement('button')
@@ -616,6 +638,16 @@ function save_found_menu() {
         load_buttons()
         day_start()
     })
+    const delete_button = document.createElement('button')
+    delete_button.id = 'delete-button'
+    delete_button.className = 'menu-button'
+    delete_button.textContent = 'True Reset (deletes data)'
+    menu_container.appendChild(delete_button)
+    delete_button.addEventListener('click', function() {
+        delete_data()
+        delete_button.remove()
+        continue_button.remove()
+    })
 }
 
 again_button.addEventListener('click', function() {
@@ -623,31 +655,28 @@ again_button.addEventListener('click', function() {
     fail_container.style.display = 'none'
     reset(true)
     show_upgrades()
-    // day_start()
 })
 start_button.addEventListener('click', function() {
     menu.style.display = 'none'
     menu_container.style.display = 'none'
-    delete_data()
     reset(true)
     show_upgrades()
-    // day_start()
 })
 
 function reset(full) {
     if (full) {
         day = 0
-        money = 0
+        money = 50
         ingredient_type = ''
         kitchen.innerHTML = ''
         for (run_upgrade in run_upgrades) {
             run_upgrades[run_upgrade].level = 0
+            run_upgrades[run_upgrade].value = run_upgrades[run_upgrade].base_value
         }
         for (ingredient in ingredients_dictionary) {
             ingredients_dictionary[ingredient].level = ingredients_dictionary[ingredient].initial_level
             ingredients_dictionary[ingredient].bits = 0
             ingredients_dictionary[ingredient].count = 0
-            // create_buttons(ingredient)
         }
     }
     money_display.textContent = '$' + money.toString()
@@ -656,6 +685,4 @@ function reset(full) {
     plate_given = false
     clearInterval(timer)
     wait_timer.style.animation = ''
-    // console.log("RESET")
-
 }

@@ -254,30 +254,27 @@ button {
 
 .kitchen .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    grid-template-rows: repeat(auto-fill, minmax(60px, 1fr));
-    gap: 1px;
+    grid-template-columns: repeat(auto-fit, minmax(19%, 1fr));
+    grid-template-rows: repeat(2, 5fr);
+    gap: 12px;
     padding: 10px;
-    content: center
-    /* margin: 10px; */
-    /* justify-content: center; */
-    /* align-content: center; */
-    /* font-size: 0%; */
-    /* line-height: 0%; */
-    /* background: rgb(49, 85, 21); */
+    content: center;
+    grid-auto-rows: auto;
 }
 
 .item-button {
-    height: 150px;
-    width: 150px;
-    /* background-color: rgb(96, 67, 127); */
+    width: 100%;
+    aspect-ratio: 1 / 1;
     image-rendering: pixelated;
-    /* background-image: linear-gradient(to right,rgb(64, 50, 110) 50%, rgb(96, 67, 127) 50%); */
 }
 .upgrade-button {
     background-color: rgb(64, 50, 110);
     height: 60px;
-    width: 150px;
+    width: 100%;
+}
+.buy_button{
+    /* height: 100%; */
+    width: 100%;
 }
 /* .kitchen .grid .ingredient-price {
     background: rgb(49, 85, 21);
@@ -299,33 +296,28 @@ button {
     /* border-style: solid; */
 }
 .menu-button {
-    /* background-color: rgb(250, 211, 189); */
-    height: 150px;
-    width: 300px;
+    width: 70%;
+    height: 120px;
     font-size: 50px;
     z-index: 100;
-    margin: 50px;
-
-    /* transform: translate(50%, 50%); */
-    /* background: rgb(36, 37, 84); */
-    /* border: 5px, rgb(36, 37, 84); */
-    /* border-style:; */
+    margin: 30px;
 }
 .menu-container {
-    /* position: fixed; */
     align-self: center;
     display: flex;
-    /* display: none; */
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 100;
     width: 60%;
-    height: 35%;    /* transform: translate(-50%, -50%); */
+    height: 35%;
     background: rgb(36, 37, 84);
     border: 5px, rgb(36, 37, 84);
     border-style: solid;
 }
+
+/* #continue-button {} */
+
 .upgrade-container {
     /* position: fixed; */
     align-self: center;
