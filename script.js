@@ -92,40 +92,37 @@ ingredients_dictionary={
     "m-topping": { type: 'topping', is_monster: true, count: 0, difficulity: 200, initial_level: -1, level: -1, bits: 0},
 };
 
-// img_ingredient = {
-//     "m-meat": 1
-// };
 
-// fullscreen_button.addEventListener('click', toggleFullscreen)
+fullscreen_button.addEventListener('click', toggleFullscreen)
 
-// // toggleFullscreen()
-// function toggleFullscreen() {
-//     const elem = document.documentElement; // или document.getElementById("root")
+// toggleFullscreen()
+function toggleFullscreen() {
+    const elem = document.documentElement; // или document.getElementById("root")
     
-//     if (!document.fullscreenElement) {
-//         // Вход в полноэкранный режим
-//         if (elem.requestFullscreen) {
-//             elem.requestFullscreen({ navigationUI: "hide" })
-//                 .catch(err => {
-//                     // Если navigationUI не поддерживается
-//                     elem.requestFullscreen();
-//                 });
-//         } else if (elem.webkitRequestFullscreen) { // Safari
-//             elem.webkitRequestFullscreen();
-//         } else if (elem.msRequestFullscreen) { // IE/Edge
-//             elem.msRequestFullscreen();
-//         }
-//     } else {
-//         // Выход из полноэкранного режима
-//         if (document.exitFullscreen) {
-//             document.exitFullscreen();
-//         } else if (document.webkitExitFullscreen) {
-//             document.webkitExitFullscreen();
-//         } else if (document.msExitFullscreen) {
-//             document.msExitFullscreen();
-//         }
-//     }
-// }
+    if (!document.fullscreenElement) {
+        // Вход в полноэкранный режим
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen({ navigationUI: "hide" })
+                .catch(err => {
+                    // Если navigationUI не поддерживается
+                    elem.requestFullscreen();
+                });
+        } else if (elem.webkitRequestFullscreen) { // Safari
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { // IE/Edge
+            elem.msRequestFullscreen();
+        }
+    } else {
+        // Выход из полноэкранного режима
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
 
 if (localStorage.getItem('score')) {
     score_display.innerText = 'MAX SCORE: DAY ' + localStorage.getItem('score')

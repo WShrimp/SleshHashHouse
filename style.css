@@ -213,12 +213,13 @@ button {
     position: absolute;
     display: flex;
     /* right: 10px; */
-    top: -9%;
-    height: 60px;
-    width: 60px;
+    bottom: 52%;
+    height: 4%;
+    /* width: 8%; */
     padding: 10px;
     background: none;
     border: 5px solid rgb(139, 70, 141, 0);
+    image-rendering: pixelated;
     z-index: 100;
 }
 .counter {
