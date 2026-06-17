@@ -94,7 +94,7 @@ ingredients_dictionary={
 
 window.scrollTo(0, 0);
 
-fullscreen_button.addEventListener('click', toggleFullscreen)
+// fullscreen_button.addEventListener('click', toggleFullscreen)
 
 // toggleFullscreen()
 function toggleFullscreen() {
