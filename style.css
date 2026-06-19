@@ -305,8 +305,8 @@ h4 {
 
 .item-picked {
     transform: scale(1.2) translateY(-3.5vh) translateX(-1vh);
-    padding-bottom: 5vh;
-    scale: 1.5;
+    /* padding-bottom: 5vh; */
+    /* scale: 1.5; */
 }
 
 /* ===== KITCHEN ===== */

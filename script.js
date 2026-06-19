@@ -28,8 +28,8 @@ const lives_display = document.getElementById('lives')
 const score_display = document.getElementById('max-score')
 const fullscreen_button = document.getElementById('fullscreen-button')
 
-const monster_images_count = 11
-const human_images_count = 8
+const monster_images_count = 19
+const human_images_count = 17
 const monster_images = Array.from(
     {length: monster_images_count}, 
     (_, i) => `images/monster/${i+1}.png`
