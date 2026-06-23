@@ -29,7 +29,7 @@ const lives_display = document.getElementById('lives')
 const score_display = document.getElementById('max-score')
 const fullscreen_button = document.getElementById('fullscreen-button')
 
-const monster_images_count = 28
+const monster_images_count = 27
 const human_images_count = 25
 const monster_images = Array.from(
     {length: monster_images_count}, 
