@@ -19,6 +19,7 @@ body {
     color: rgb(36, 37, 84);
     color: rgb(64, 50, 110);
     color: rgb(96, 67, 127);
+    color: rgb(206, 115, 171);
     color: rgb(250, 211, 189);
 }
 
@@ -78,7 +79,7 @@ button {
     color: rgb(250, 211, 189);
     touch-action: manipulation;
     border: 0.35vh, rgb(36, 37, 84), solid;
-    box-shadow: -0.1vh 0.3vh 0.3vh rgb(36, 37, 84, 0.6);
+    box-shadow: -0.1vh 0.3vh 0.3vh rgb(36, 37, 84, 0.6), 0 0 0.5vh rgba(255, 152, 216, 0.15);
     /* box-shadow: -0.2vh 0.4vh 0.3vh rgb(250, 211, 189, 0.5); */
 }
 button:disabled {
@@ -795,6 +796,14 @@ button:disabled {
     touch-action: manipulation
 }
 
+.play-container-background {
+    position: absolute;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    /* background-color: rgb(139, 70, 141); */
+}
 
 .play-container {
     position: relative;
@@ -815,7 +824,7 @@ button:disabled {
     text-align: center;
     align-self: center;
     font-size: 7vw;
-    text-shadow: -0.5vh 0.8vh 1.8vh rgb(36, 37, 84);
+    text-shadow: -0.2vh 0.3vh 0.4vh rgb(36, 37, 84), -0.1vh 0.1vh 2.5vh rgb(206, 115, 171), -0.1vh 0.1vh 1vh rgb(250, 211, 189, 0.7);
     /* text-wrap: nowrap; */
 }
 .play-container  .play-subcontainer {

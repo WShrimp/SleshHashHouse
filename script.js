@@ -1,13 +1,3 @@
-// let count = 0;
-// const button = document.getElementById('clickBtn');
-// const counterSpan = document.getElementById('counter');
-
-// button.addEventListener('click', function() {
-//     count = count + 1;
-//     counterSpan.innerText = count;
-// });
-// const item_button = document.getElementsByClassName('item-button')
-// const upgrade_button = document.getElementsByClassName('upgrade-button')
 const table = document.getElementById('table')
 const table_container = document.querySelector('.table-container')
 const tray_container = document.querySelector('.tray-container')
@@ -104,12 +94,13 @@ trays={
     'meat': {bought: false, price: 500},
     'filling': {bought: false, price: 1000},
     'sauce': {bought: false, price: 3000},
-    'topping': {bought: false, price: 8000},
+    'topping': {bought: false, price: 7000},
 }
 
-creatre_trays()
+// creatre_trays()
 
 function creatre_trays() {
+    tray_container.innerHTML = ''
     let tray_buy_button_exists = false
     for (let type in trays) {
         if (trays[type].bought == true) {
@@ -259,7 +250,7 @@ function getAvailableIngredients() {
     );
 }
 function getTypeBuyIngredient(ingredient) {
-    console.log(ingredient, ", type: ", ingredients_dictionary[ingredient]?.type || null)
+    // console.log(ingredient, ", type: ", ingredients_dictionary[ingredient]?.type || null)
     return ingredients_dictionary[ingredient]?.type || null;
 }
 
@@ -267,7 +258,7 @@ let resizeTimer
 window.onresize = function() {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-        console.log('RESZE')
+        // console.log('RESZE')
         reset_table();
     }, 300);
 }
@@ -284,7 +275,7 @@ fullscreen_button.addEventListener('click', toggleFullscreen)
 // toggleFullscreen()
 function toggleFullscreen() {
     const elem = document.documentElement; // или document.getElementById("root")
-    console.log('toggle fullscreen')
+    // console.log('toggle fullscreen')
     if (!document.fullscreenElement) {
         // Вход в полноэкранный режим
         if (elem.requestFullscreen) {
@@ -316,15 +307,15 @@ function toggleFullscreen() {
 
 function reset_table() {
     
-    console.log("reset table")
+    // console.log("reset table")
     // table_container.innerHTML = ''
     const trays_to_clear = document.getElementsByClassName('tray-ingredient-holder-container')
-    console.log('trays to clear: ', trays_to_clear)
+    // console.log('trays to clear: ', trays_to_clear)
     for (let element of trays_to_clear) {
-        console.log('clearing element: ', element)
+        // console.log('clearing element: ', element)
         element.innerHTML = ''
     }
-    console.log('trays after clear?: ', trays_to_clear)
+    // console.log('trays after clear?: ', trays_to_clear)
     table.innerHTML = ''
     // creatre_trays()
     for (let ingredient in ingredients_dictionary) {
@@ -362,7 +353,7 @@ function save() {
     score = day
     if (localStorage.getItem('score') && localStorage.getItem('score') < score){
         localStorage.setItem('score', score)
-        console.log('writing new score: ', score)
+        // console.log('writing new score: ', score)
     }
 }
 
@@ -370,7 +361,7 @@ function load() {
     run_upgrades = JSON.parse(localStorage.getItem('run_upgrades'))
     ingredients_dictionary = JSON.parse(localStorage.getItem('ingredients_dictionary'))
     trays = JSON.parse(localStorage.getItem('trays'))
-    console.log(ingredients_dictionary)
+    // console.log(ingredients_dictionary)
     // for (ingredient in ingredients_dictionary) {
     //     ingredients_dictionary[ingredient].count = 0
     // }
@@ -390,20 +381,41 @@ function delete_data() {
 }
 
 // get random upgrade
-let get_random_upgrade  = function() {
-    let keys = Object.keys(run_upgrades)
-    let random_key = keys[Math.floor(Math.random() * keys.length)]
-    if (run_upgrades[random_key].level >= run_upgrades[random_key].max) {return get_random_upgrade ()}
-    return random_key
-    get_random_upgrade ()
+// let get_random_upgrade  = function() {
+//     let keys = Object.keys(run_upgrades)
+//     let random_key = keys[Math.floor(Math.random() * keys.length)]
+//     if (run_upgrades[random_key].level >= run_upgrades[random_key].max) {return get_random_upgrade ()}
+//     return random_key
+//     get_random_upgrade ()
 
+// }
+function get_random_upgrades(count = 3) {
+    // 1. Получаем все доступные апгрейды (где level < max)
+    let available = Object.keys(run_upgrades).filter(key => 
+        run_upgrades[key].level < run_upgrades[key].max
+    );
+    
+    // 2. Если доступных меньше count, добиваем деньгами
+    let result = [];
+    let shuffled = [...available].sort(() => Math.random() - 0.5);
+    
+    // Берем уникальные апгрейды, сколько есть
+    for (let i = 0; i < Math.min(shuffled.length, count); i++) {
+        result.push(shuffled[i]);
+    }
+    
+    // 3. Оставшиеся слоты заполняем 'money'
+    while (result.length < count) {
+        result.push('money');
+    }
+    
+    return result;
 }
-
 
 function load_buttons() {
     kitchen.innerHTML = ''
     for (let type of getUniqueTypes()) {
-        console.log(type)
+        // console.log(type)
         if (isTypeUnlocked(type)) {
             create_ingredient_buttons(type)
         } else {
@@ -462,21 +474,17 @@ function update_buttons_state() {
     }
 
     let element = document.querySelector('.tray-buy-button')
-    // console.log('element: ', element)
-    console.log(element.firstChild)
-    console.log(element.firstChild.textContent.slice(1))
-    // console.log(element.firstChild.slice(1))
     if (money < element.firstChild.textContent.slice(1)) {
         element.disabled = true
     } else {
-    element.disable = false
-}
+    element.disabled = false
+    }
     
     // element = day_goal_pay_button
     if (money < day_goal) {
         day_goal_pay_button.disabled = true
     } else {
-        day_goal_pay_button.disable = false
+        day_goal_pay_button.disabled = false
     }
 }
 
@@ -688,6 +696,7 @@ function day_start(){
 
 function customer_appear() {
     // console.log("customer_appear")    
+    if (!in_game) return;
     fill_order()
     customer_image.style.animation = 'slide-out-opacity ' + 0.6 / run_upgrades['animation_speed'].value + 's ease-in-out'
 }
@@ -801,7 +810,7 @@ function add_ingredient(ingredient) {
 
     if (trays[type].bought == true) {
         update_trays_buttons_state()
-        console.log('adding' + ingredient + 'on tray')
+        // console.log('adding' + ingredient + 'on tray')
         const tray_ingredient = document.getElementById('tray-ingredient-' + ingredient)
         const img = document.createElement('img')
         img.src = `images/ingredients-table/${ingredient}.png`
@@ -818,9 +827,10 @@ function add_ingredient(ingredient) {
     const tableRect = table.getBoundingClientRect();
     const movable_item = document.createElement('div');
     movable_item.className = "ingredient_item"
-    console.log('putting ingredient ', ingredient, ' on plate: ', tableRect)
-    movable_item.style.top = tableRect.top + Math.random() * tableRect.height * 0.7 + 'px'
-    movable_item.style.left = Math.random() * 85 + '%'
+    // console.log('putting ingredient ', ingredient, ' on plate: ', tableRect)
+    movable_item.style.top = tableRect.top + Math.random() * tableRect.height * 0.67 + 'px'
+    movable_item.style.left = tableRect.left + Math.random() * tableRect.width * 0.8 + 'px'
+    // movable_item.style.left = Math.random() * 85 + '%'
     const img = document.createElement('img')
     img.src = `images/ingredients-table/${ingredient}.png`
     table.appendChild(movable_item)
@@ -1048,10 +1058,11 @@ function day_end() {
 function show_upgrades() {
     menu.style.display = 'flex'
     upgrade_container.style.display = 'flex'
-    for (let i = 0; i < 3; i++) {
+    let random_upgrades = get_random_upgrades(3)
+    for (let i = 0; i < random_upgrades.length; i++) {
+        let random_upgrade = random_upgrades[i]
         let run_upgrade_button = document.createElement('button')
         run_upgrade_button.className = 'run-upgrade-button'
-        let random_upgrade  = get_random_upgrade ()
         run_upgrade_button.id = random_upgrade
         run_upgrade_button.textContent = run_upgrades[random_upgrade].name
         // run_upgrade_button.textContent = '[' + run_upgrades[random_upgrade].level + '] — ' + run_upgrades[random_upgrade].name
@@ -1128,16 +1139,6 @@ function save_found() {
         day_start()
         // creatre_trays()
     })
-    // const delete_button = document.createElement('button')
-    // delete_button.id = 'delete-button'
-    // delete_button.className = 'menu-button'
-    // delete_button.textContent = 'True Reset (deletes data)'
-    // play_subcontainer.appendChild(delete_button)
-    // delete_button.addEventListener('click', function() {
-    //     delete_data()
-    //     delete_button.remove()
-    //     continue_button.remove()
-    // })
 }
 
 again_button.addEventListener('click', function() {
@@ -1161,6 +1162,16 @@ function reset(full) {
         ingredient_type = ''
         kitchen.innerHTML = ''
         table.innerHTML = ''
+
+        in_game = false
+        plate_given = false
+        full_order = []
+        full_plate = []
+
+        time_display.textContent = '0:00'
+        // money_display.textContent = '$0'
+
+        // table_container.innerHTML = ''
         for (run_upgrade in run_upgrades) {
             run_upgrades[run_upgrade].level = 0
             run_upgrades[run_upgrade].value = run_upgrades[run_upgrade].starting_value
@@ -1170,6 +1181,10 @@ function reset(full) {
             ingredients_dictionary[ingredient].bits = 0
             ingredients_dictionary[ingredient].count = 0
         }
+        for (let type in trays) {
+            trays[type].bought = false
+        }
+        creatre_trays()
         update_ingredient_buttons_state()
         update_trays_buttons_state()
     }
