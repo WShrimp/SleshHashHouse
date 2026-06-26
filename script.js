@@ -23,8 +23,8 @@ const lives_display = document.getElementById('lives')
 const score_display = document.getElementById('max-score')
 const fullscreen_button = document.getElementById('fullscreen-button')
 
-const monster_images_count = 27
-const human_images_count = 25
+const monster_images_count = 31
+const human_images_count = 29
 const monster_images = Array.from(
     {length: monster_images_count}, 
     (_, i) => `images/monster/${i+1}.png`
@@ -91,10 +91,10 @@ ingredients_dictionary={
 };
 
 trays={
-    'meat': {bought: false, price: 400},
-    'filling': {bought: false, price: 800},
-    'sauce': {bought: false, price: 2000},
-    'topping': {bought: false, price: 3500},
+    'meat': {bought: false, price: 300},
+    'filling': {bought: false, price: 600},
+    'sauce': {bought: false, price: 1000},
+    'topping': {bought: false, price: 2000},
 }
 
 // creatre_trays()
