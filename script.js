@@ -46,7 +46,7 @@ const heart_image = 'images/heart.png'
 
 // savable
 let day = 0
-let starting_money = 50
+let starting_money = 5000
 let money = 50 // also in reset btw
 let min_wait_time = 4
 // let lives
@@ -91,17 +91,20 @@ ingredients_dictionary={
 };
 
 trays={
-    'meat': {bought: false, price: 500},
-    'filling': {bought: false, price: 1000},
-    'sauce': {bought: false, price: 3000},
-    'topping': {bought: false, price: 7000},
+    'meat': {bought: false, price: 400},
+    'filling': {bought: false, price: 800},
+    'sauce': {bought: false, price: 2000},
+    'topping': {bought: false, price: 3500},
 }
 
 // creatre_trays()
 
+let tray_buy_button_exists = false
 function creatre_trays() {
     tray_container.innerHTML = ''
-    let tray_buy_button_exists = false
+    // let tray_buy_button_exists = false
+    // tray_buy_button_exists = document.querySelector('.tray-buy-button') ?? false
+    console.log('buy button exists: ', tray_buy_button_exists)
     for (let type in trays) {
         if (trays[type].bought == true) {
             console.log('creating tray for ', type)
@@ -118,6 +121,7 @@ function creatre_trays() {
 }
 
 function create_tray_buy_button(type) {
+    tray_buy_button_exists = true
     const tray_buy_button = document.createElement('button')
     tray_buy_button.className = 'tray-buy-button'
     const tray_type_image = document.createElement('img')
@@ -179,14 +183,23 @@ function create_tray_type_buttons(type) {
 
     if(type == 'topping') {tray_set_full_width()}
     trays[type].bought = true
+
     if (type == 'topping') {return}
+
     if (type == 'meat') {type = 'filling'}
     else {if (type == 'filling') {type = 'sauce'}
     else {type = 'topping'}}
     console.log('next tray type: ', type)
 
+    // let tray_buy_button_exists = document.querySelector('.tray-buy-button') ?? false
+    // console.log('tray button exists: ', tray_buy_button_exists)
+    // if (!tray_buy_button_exists){
+        // console.log('button does not exists, creating fot type: ', type)
+    if (trays[type].bought == false) {
+        create_tray_buy_button(type)
 
-    create_tray_buy_button(type)
+    }
+    // }
 }
 
 function handle_tray_click(ingredient_holder_tray_container, ingredients_on_tray_count_display, ingredient_tray_image, ingredient) {
@@ -792,7 +805,7 @@ function calculate_price(ingredient) {
 }
 function calculate_buy_price(type) {
     let ingredient = getIngredientsByType(type)[0]
-    return Math.round(Math.pow(ingredients_dictionary[ingredient].difficulity, 1.3)/5)
+    return Math.round(Math.pow(ingredients_dictionary[ingredient].difficulity, 1.3)/3)
 }
 
 
@@ -941,7 +954,7 @@ function give_plate(fail) {
         show_emote('like')
         // console.log("Correct!")
         for (let i = 0; i < full_plate.length; i++) {
-            money_for_plate += Math.round((ingredients_dictionary[full_plate[i]].difficulity - 30) / 4)
+            money_for_plate += Math.round((ingredients_dictionary[full_plate[i]].difficulity - 20) / 4)
         }
         money_gain = Math.round(money_for_plate * run_upgrades['money_multiplier'].value)
         money += money_gain
@@ -1125,7 +1138,7 @@ function save_found() {
     continue_button.id = 'continue-button'
     continue_button.className = 'menu-button'
     let continue_day = JSON.parse(localStorage.getItem('day'))
-    continue_button.textContent = 'Continue ' + ' Day ' + continue_day
+    continue_button.textContent = 'Continue ' + ' Day ' + (continue_day + 1)
     play_subcontainer.appendChild(continue_button)
     continue_button.addEventListener('click', function() {
         console.log('continue button pressed')
@@ -1135,9 +1148,9 @@ function save_found() {
 
         load()
         load_buttons()
+        creatre_trays()
         reset_table()
         day_start()
-        creatre_trays()
         // creatre_trays()
     })
 }
@@ -1164,7 +1177,7 @@ function reset(full) {
         kitchen.innerHTML = ''
         table.innerHTML = ''
         // table_container.innerHTML = ''
-
+        tray_buy_button_exists = false
         in_game = false
         plate_given = false
         full_order = []
