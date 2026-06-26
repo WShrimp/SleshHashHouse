@@ -206,8 +206,10 @@ function handle_tray_click(ingredient_holder_tray_container, ingredients_on_tray
     const tray_children = Array.from(ingredient_holder_tray_container.children);    
     if (tray_children.length <= 0 || ingredients_dictionary[ingredient].count <= 0) {return}
 
-    // console.log('tray_chilidren: ', tray_children)
-    const ingredient_tray = tray_children[ingredients_dictionary[ingredient].count-1];
+    console.log('tray_chilidren: ', tray_children)
+    console.log('ingredient count: ', ingredients_dictionary[ingredient].count)
+    const ingredient_tray = tray_children[tray_children.length - 1];
+    // const ingredient_tray = tray_children[ingredients_dictionary[ingredient].count-1];
     
     // console.log('last child: ', ingredient_tray)
 
@@ -668,7 +670,14 @@ function day_start(){
     save()
     // console.log("update hearts to: ", run_upgrades['lives'].value)
     update_hearts()
+    plate.style.display = 'flex'
     plate.innerHTML = ""
+
+    const bun_plate = document.createElement('img')
+    bun_plate.className = 'on-plate-bun'
+    bun_plate.src = "images/ingredients-plate/plate.png"
+    plate.appendChild(bun_plate)
+
     in_game = true
     money += run_upgrades['starting_money'].value
     money_display.textContent = '$' + money
@@ -732,10 +741,12 @@ customer_image.addEventListener('load', function(e) {
     }
 
     // customer_image.style.animation = 'slide-in-opacity ' + 0.6 / run_upgrades['animation_speed'].value + 's ease-in-out'
-    const bun_plate = document.createElement('img')
-    bun_plate.className = 'on-plate-bun'
-    bun_plate.src = "images/ingredients-plate/plate.png"
-    plate.appendChild(bun_plate)
+    // const bun_plate = document.createElement('img')
+    // bun_plate.className = 'on-plate-bun'
+    // bun_plate.src = "images/ingredients-plate/plate.png"
+    // plate.appendChild(bun_plate)
+    plate.style.display = 'flex'
+
     plate.style.animation = 'slide-in ' + 0.7 / run_upgrades['animation_speed'].value + 's ease-in-out'
     customer_image.style.animation = 'slide-in-opacity ' + 0.7 / Math.pow(run_upgrades['animation_speed'].value, 2) + 's ease-in-out'
     customer_image.style.display = 'block'
@@ -820,6 +831,7 @@ function add_ingredient(ingredient) {
 
     // console.log('determened ingredient type: ', type)
     // console.log('tray for ingredient if bought: ', trays[type].bought)
+    const tray_count_display = document.getElementById('tray-count-display-' + ingredient)
 
     if (trays[type].bought == true) {
         update_trays_buttons_state()
@@ -832,7 +844,6 @@ function add_ingredient(ingredient) {
 
         const tray_image = document.getElementById('tray-ingredient-image-' + ingredient)
         tray_image.style.display = 'none'
-        const tray_count_display = document.getElementById('tray-count-display-' + ingredient)
         tray_count_display.textContent = ingredients_dictionary[ingredient].count + '/' + run_upgrades['max_ingredients'].value
         return
     }
@@ -882,9 +893,12 @@ function add_ingredient(ingredient) {
             tableRect.left >= parseInt(movable_item.style.left) + imgsize * 0.5 ||
             tableRect.right <= parseInt(movable_item.style.left) + imgsize * 0.5
         ) {
-            movable_item.style.animation = 'fall ' + 0.5 / run_upgrades['animation_speed'].value + 's ease-in-out'
             ingredients_dictionary[ingredient].count -= 1
+            if (trays[type].bought == true) {add_ingredient(ingredient)}
+            movable_item.style.animation = 'fall ' + 0.5 / run_upgrades['animation_speed'].value + 's ease-in-out'
+            // tray_count_display.textContent = ingredients_dictionary[ingredient].count + '/' + run_upgrades['max_ingredients'].value
             update_ingredient_buttons_state()
+
             movable_item.addEventListener('animationend', e => {
                 e.preventDefault();
                 movable_item.remove()
@@ -899,6 +913,7 @@ function place_on_plate(movable_item, ingredient) {
     ingredients_dictionary[ingredient].count -= 1
     update_ingredient_buttons_state()
     update_trays_buttons_state()
+    
     const ingredient_on_plate = document.createElement('img')
     ingredient_on_plate.src = `images/ingredients-plate/${ingredient}.png`
     ingredient_on_plate.className = 'on-plate'
@@ -1030,7 +1045,11 @@ function show_emote(emote_name) {
 
 plate.addEventListener('animationend', function(e) {
     if (e.animationName == 'slide-out') {
-        plate.innerHTML = ""
+        // plate.innerHTML = ""
+        plate.querySelectorAll('.on-plate').forEach(el => el.remove());
+
+        plate.style.display = 'none'
+
         full_plate = []
         wait_timer.style.animation = ''
         plate_given = false
