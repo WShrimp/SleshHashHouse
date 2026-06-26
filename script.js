@@ -46,7 +46,7 @@ const heart_image = 'images/heart.png'
 
 // savable
 let day = 0
-let starting_money = 5000
+let starting_money = 50
 let money = 50 // also in reset btw
 let min_wait_time = 4
 // let lives
@@ -816,7 +816,7 @@ function calculate_price(ingredient) {
 }
 function calculate_buy_price(type) {
     let ingredient = getIngredientsByType(type)[0]
-    return Math.round(Math.pow(ingredients_dictionary[ingredient].difficulity, 1.3)/3)
+    return Math.round(Math.pow(ingredients_dictionary[ingredient].difficulity, 2)/100)
 }
 
 
