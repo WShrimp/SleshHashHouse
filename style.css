@@ -118,8 +118,11 @@ button:disabled {
     z-index: -2;
     text-wrap: nowrap;
 }
-.left-info #goal, #goal-text, .right-info #day, #day-text{
+.left-info #goal, #goal-text, #goal-reached, .right-info #day, #day-text{
     font-size: 70%;
+}
+.goal_subcontainer {
+    gap: 0.5dvh;
 }
 #day-goal-pay {
     position: absolute;
@@ -252,9 +255,9 @@ button:disabled {
 }
 
 .order {
-    display: flex;
+    /* display: flex; */
     /* top: -1000%; */
-    /* display: none; */
+    display: none;
     flex-basis: auto;
     padding: 1.5dvh;
     flex-direction: column-reverse;
@@ -389,13 +392,14 @@ button:disabled {
     box-shadow: none;
     image-rendering: pixelated;
 }
-.settings-button {
+.settings-panel button {
     /* position: relative; */
     display: flex;
     /* bottom: 54.5%; */
     height: 4dvh;
     max-height: 3.6dvh;
     max-width: 3.6dvh;
+    aspect-ratio: 1/1;
     padding:0px;
     padding: 1dvh;
     background: none;
@@ -971,6 +975,7 @@ button:disabled {
     /* text-wrap: 1; */
     height:fit-content;
     min-width: fit-content;
+    padding: 5%;
     padding-bottom: 5%;
     background: rgb(64, 50, 110);
     /* border: 0.5dvh, rgb(36, 37, 84); */

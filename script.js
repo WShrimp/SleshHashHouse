@@ -5,7 +5,9 @@ const plate = document.getElementById('plate')
 const order = document.getElementById('order')
 const money_display = document.getElementById('money');
 const money_gain_display = document.getElementById('money-gain')
+const goal_container = document.querySelector('.goal_subcontainer')
 const goal_display = document.getElementById('goal');
+const goal_reached = document.getElementById('goal-reached')
 const day_goal_pay_button = document.getElementById('day-goal-pay')
 const day_display = document.getElementById('day');
 const time_display = document.getElementById('time');
@@ -62,13 +64,15 @@ let min_wait_time = 4
 // let language = 'en'
 
 // temporary
-let day_min_time = 3
+let day_min_time = 3 //3
 
 let sounds_on = true
 let music = new Audio()
 let buttons_audio = new Audio()
-let ui_audio = new Audio()
+let money_audio = new Audio()
 let sfx_audio = new Audio()
+let fail_audio = new Audio()
+let day_end_audio = new Audio()
 
 let language = Intl.DateTimeFormat().resolvedOptions().locale
 if (language != 'ru') {language = 'en'}
@@ -88,8 +92,9 @@ const translations = {
     ru: {
         start: 'Новая Игра',
         continue: 'Продолжить День',
+        fail: 'ВЫ ПРОИГРАЛИ',
         again: 'Заново',
-        upgrade: 'УЛУЧШЕНИЯ',
+        upgrades: 'УЛУЧШЕНИЯ',
         day: 'День: ',
         goal: 'Цель Дня: ',
         pay_goal: 'Оплатить цель',
@@ -101,8 +106,9 @@ const translations = {
     en: {
         start: 'New Game',
         continue: 'Continue Day',
+        fail: 'FAIL',
         again: 'Again',
-        upgrade: 'UPGRADE',
+        upgrades: 'UPGRADES',
         day: 'Day: ',
         goal: 'Daily Goal: ',
         pay_goal: 'Pay Goal',
@@ -205,7 +211,7 @@ function play_music() {
     music.src = 'sounds/music/' + music_list[music_id].file_name
     music.muted = false
     music.loop = true
-    music.volume = 0.45
+    music.volume = 0.4
     music.play()
     music_name.textContent = music_list[music_id].file_name
     radio.style.opacity = 0
@@ -238,24 +244,39 @@ function play_sound (sound, volume = 1) {
             break
         case 'place':
             sfx_audio.pause()
+            sfx_audio.currentTime = 0
             sfx_audio.src = 'sounds/place.ogg'
             sfx_audio.play()
             break
         case 'money_gain':
-            // ui_audio.pause()
-            ui_audio.src = 'sounds/gain_money.ogg'
-            ui_audio.play()
+            // money_audio.pause()
+            money_audio.src = 'sounds/gain_money.ogg'
+            money_audio.play()
             break
         case 'day_end':
-            sfx_audio.pause()
-            sfx_audio.src = 'sounds/day_end.ogg'
-            sfx_audio.play()
+            day_end_audio.pause()
+            day_end_audio.src = 'sounds/day_end.ogg'
+            day_end_audio.play()
             break
         case 'scream':
             sfx_audio.pause()
+            sfx_audio.currentTime = 0
             sfx_audio.volume = volume
             sfx_audio.src = 'sounds/scream.ogg'
             sfx_audio.play()
+            break
+        case 'eww':
+            sfx_audio.pause()
+            sfx_audio.currentTime = 0
+            sfx_audio.volume = volume
+            sfx_audio.src = 'sounds/eww.ogg'
+            sfx_audio.play()
+            break
+        case 'fail':
+            fail_audio.volume = volume
+            fail_audio.src = 'sounds/fail.ogg'
+            fail_audio.play()
+            break
     }
 
 }
@@ -849,8 +870,15 @@ day_goal_pay_button.addEventListener('click', function() {
     if (money >= day_goal) {
         money -= day_goal
         day_goal = 0
-        goal_display.textContent = t('goal_paid')
+        // goal_display.textContent = ''
+        // goal_display.textContent = t('goal_paid')
+        // const goal_text = document.getElementById('goal-text')
+        // goal_text.textContent = t('goal_paid')
         day_goal_pay_button.style.display = 'none'
+        goal_reached.style.display = 'flex'
+        
+        goal_container.style.display = 'none'
+
         money_display.textContent = '$' + money
     }
 })
@@ -880,6 +908,9 @@ function day_start(){
     score = day
     day_goal = 100 * day
     day_goal_pay_button.style.display = 'flex'
+    goal_container.style.display = 'flex'
+    goal_reached.style.display = 'none'
+
     goal_display.textContent = '$'+day_goal
 
     const goal_text = document.getElementById('goal-text')
@@ -947,11 +978,12 @@ customer_image.addEventListener('load', function(e) {
     // bun_plate.src = "images/ingredients-plate/plate.png"
     // plate.appendChild(bun_plate)
     plate.style.display = 'flex'
-
     plate.style.animation = 'slide-in ' + 0.7 / run_upgrades['animation_speed'].value + 's ease-in-out'
-    customer_image.style.animation = 'slide-in-opacity ' + 0.7 / Math.pow(run_upgrades['animation_speed'].value, 2) + 's ease-in-out'
-    customer_image.style.display = 'block'
-    wait_timer.style.animation = 'slide-left ' + Math.max(min_wait_time, (20 - day) + run_upgrades['additional_customer_time'].value) + 's linear'
+    requestAnimationFrame(() => {
+        customer_image.style.animation = 'slide-in-opacity ' + 0.7 / Math.pow(run_upgrades['animation_speed'].value, 2) + 's ease-in-out'
+        customer_image.style.display = 'block'
+    })
+        wait_timer.style.animation = 'slide-left ' + Math.max(min_wait_time, (20 - day) + run_upgrades['additional_customer_time'].value) + 's linear'
 })
 
 wait_timer.addEventListener('animationend', function(e) {
@@ -963,6 +995,7 @@ wait_timer.addEventListener('animationend', function(e) {
 
 function fill_order() {
     order.style.animation = 'fade-out ' + 0.3 / run_upgrades['animation_speed'].value + 's ease-in-out'
+    order.style.display = 'flex'
 }
 order.addEventListener('animationend', function(e) {
     // order.style.top = '0'
@@ -1190,7 +1223,7 @@ function give_plate(fail) {
     }
     if (fail == 1) {
         // console.log("It's a monster, no money")
-        money_gain = Math.round(-10 * day * Math.random()*4)
+        money_gain = Math.round(-10 * day * Math.random()*3.3)
         money += money_gain
         money_gain_display.textContent = money_gain
         money_gain_display.style.animation = ''
@@ -1198,6 +1231,7 @@ function give_plate(fail) {
         money_gain_display.style.color = 'rgb(204, 67, 105)'
         money_gain_display.style.animation = 'slide-out-opacity 2s ease-in forwards'
         show_emote('eww')
+        play_sound('eww', 0.7)
         money_display.textContent = '$' + money.toString()
         if (money < 0) {
             lose()
@@ -1205,24 +1239,17 @@ function give_plate(fail) {
     }
     if (fail == 2) {
         // console.log("It's not a monster, FAIL FAIL FAIL")
-
-        
         show_emote('scream')
-        play_sound('scream', 0.8)
-        // lose()
+        play_sound('scream', 0.7)
         run_upgrades['lives'].value -= 1
-        // update_hearts()
-        // console.log("staring animation on: ", last_heart)
         last_heart.style.animation = 'fall 0.8s ease-in-out'
         last_heart.addEventListener('animationend', function(e) {
-            // console.log('animation finished on: ', last_heart)
             update_hearts()
         })  
         if (run_upgrades['lives'].value <= 0) {
             lose()
             return
         }
-        // return
     }
     if (fail == 3) {
         show_emote('hmpf')
@@ -1274,6 +1301,7 @@ function lose() {
     setTimeout(() => {
         menu.style.display = 'flex'
         fail_container.style.display = 'flex'
+        play_sound('fail')
     }, 1000);
 }
 
