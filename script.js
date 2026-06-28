@@ -1537,20 +1537,20 @@ let away_timer
 let away_triggered = false
 
 function handleAway(source) {
-    log('handleAway from: ' + source + ' in_game: ' + in_game + ' away_triggered: ' + away_triggered)
+    // console.log('handleAway from: ' + source + ' in_game: ' + in_game + ' away_triggered: ' + away_triggered)
     if (in_game && !away_triggered) {
         away_triggered = true
         music.pause()
-        log('starting away_timer')
+        // console.log('starting away_timer')
         away_timer = setTimeout(() => {
-            log('RELOADING')
+            console.log('RELOADING')
             location.reload()
         }, 10000)
     }
 }
 
 function handleReturn(source) {
-    log('handleReturn from: ' + source + ' away_triggered: ' + away_triggered)
+    console.log('handleReturn from: ' + source + ' away_triggered: ' + away_triggered)
     away_triggered = false
     clearTimeout(away_timer)
     if (in_game && music.paused) {
@@ -1584,11 +1584,11 @@ window.addEventListener('focus', function() {
 
 
 
-const debug_log = document.createElement('div')
-debug_log.style.cssText = 'position:fixed;bottom:0;left:0;z-index:9999;background:rgba(0,0,0,0.8);color:lime;font-size:2dvh;max-height:50vh;overflow-y:auto;width:100%;padding:4px;pointer-events:none;'
-document.body.appendChild(debug_log)
+// const debug_log = document.createElement('div')
+// debug_log.style.cssText = 'position:fixed;bottom:0;left:0;z-index:9999;background:rgba(0,0,0,0.8);color:lime;font-size:2dvh;max-height:50vh;overflow-y:auto;width:100%;padding:4px;pointer-events:none;'
+// document.body.appendChild(debug_log)
 
-function log(msg) {
-    debug_log.textContent += msg + '\n'
-    console.log(msg)
-}
+// function log(msg) {
+//     debug_log.textContent += msg + '\n'
+//     console.log(msg)
+// }
