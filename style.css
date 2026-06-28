@@ -388,14 +388,13 @@ button:disabled {
     box-shadow: none;
     image-rendering: pixelated;
 }
-.settings-panel button {
-    /* position: relative; */
-    display: flex;
-    height: 4dvh;
-    min-height: 4dvh;
-    min-width: 4dvh;
-    max-height: 4dvh;
-    max-width: 4dvh;
+.settings-panel button {    display: flex;
+    height: 3.6dvh;
+    width: 3.6dvh;
+    min-height: 3.6dvh;
+    min-width: 3.6dvh;
+    max-height: 3.6dvh;
+    max-width: 3.6dvh;
     aspect-ratio: 1/1;
     padding:0px;
     padding: 1dvh;
@@ -405,7 +404,6 @@ button:disabled {
     box-shadow: none;
     image-rendering: pixelated;
 }
-/* .settings-panel button image { */
 
 .counter {
     position:absolute;
