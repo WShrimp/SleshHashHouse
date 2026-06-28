@@ -21,7 +21,13 @@ const play_subcontainer = document.querySelector('.play-subcontainer')
 const upgrade_container = document.querySelector('.upgrade-container')
 const lives_display = document.getElementById('lives')
 const score_display = document.getElementById('max-score')
+
 const fullscreen_button = document.getElementById('fullscreen-button')
+const language_button = document.getElementById('language')
+const sound_button = document.getElementById('sound')
+const music_button = document.getElementById('music')
+const radio = document.getElementById('radio')
+const music_name = document.getElementById('music-name')
 
 const monster_images_count = 31
 const human_images_count = 29
@@ -34,26 +40,40 @@ const human_images = Array.from(
     (_, i) => `images/human/${i+1}.png`
 );
 const heart_image = 'images/heart.png'
-// // upgradable
-// let max_ingredients = 3
-// // undone
-// let money_multiplier = 1
-// let animation_speed = 0.1
-// let additional_customer_time = 0
-// let additional_day_time = 0
-// let faster_cooking_multiplier
-// let click_power = 1
+
+const music_list = {
+    1: {file_name: '260178__valentinsosnitskiy__dm_improvisation_loop.ogg'},
+    2: {file_name: '364650__noedell__noedell-jazzyloop-10.ogg'},
+    3: {file_name: '456797__nikosardas__jazz_music_loop.ogg'},
+    4: {file_name: '466478__tri-tachyon__jazzy-vibes-36-loop-smooth-jazz.ogg'},
+    5: {file_name: '537355__badoink__smooth-jazz-120-bpm.ogg'},
+    6: {file_name: '541689__tri-tachyon__jazzy-vibes-81-jazz-piano-medley.ogg'},
+    7: {file_name: '546210__koulaxizis__jazz-musician-playing-under-a-train-bridge.ogg'},
+    8: {file_name: '654730__sergequadrado__fusion.ogg'},
+    9: {file_name: '683501__sergequadrado__latin-jazz-loop.ogg'},
+    10: {file_name: '704387__timbre__hum-free-loopable-remix-of-migfus20s-freesound-703912.ogg'},
+}
 
 // savable
 let day = 0
 let starting_money = 50
 let money = 50 // also in reset btw
 let min_wait_time = 4
-// let lives
+// let language = 'en'
 
 // temporary
-let day_goal = 0
 let day_min_time = 3
+
+let sounds_on = true
+let music = new Audio()
+let buttons_audio = new Audio()
+let ui_audio = new Audio()
+let sfx_audio = new Audio()
+
+let language = Intl.DateTimeFormat().resolvedOptions().locale
+if (language != 'ru') {language = 'en'}
+
+let day_goal = 0
 let timer
 let ingredient_type = ``
 let plate_given = false
@@ -64,6 +84,87 @@ let score = 0
 let in_game = false
 let last_heart
 
+const translations = {
+    ru: {
+        start: 'Новая Игра',
+        continue: 'Продолжить День',
+        again: 'Заново',
+        upgrade: 'УЛУЧШЕНИЯ',
+        day: 'День: ',
+        goal: 'Цель Дня: ',
+        pay_goal: 'Оплатить цель',
+        goal_paid: 'Цель Достигнута',
+        max_score: 'РЕКОРД: ДЕНЬ ',
+
+        description: 'Готовьте и собирайте бургеры из подходящих ингредиентов для людей и монстров'
+    },
+    en: {
+        start: 'New Game',
+        continue: 'Continue Day',
+        again: 'Again',
+        upgrade: 'UPGRADE',
+        day: 'Day: ',
+        goal: 'Daily Goal: ',
+        pay_goal: 'Pay Goal',
+        goal_paid: 'Goal Paid',
+        max_score: 'MAX SCORE: DAY ',
+
+        description: 'Chose right ingredients to make burgers for humans and monsters',
+    }
+}
+
+const upgrade_translations = {
+    ru: {
+        max_ingredients: '+1 к максимуму ингредиентов',
+        money_multiplier: 'Больше чаевые',
+        animation_speed: 'Выше скорость анимации',
+        additional_customer_time: 'Посетители терпеливее',
+        customer_demand: 'Меньше ингредиентов в заказе',
+        additional_day_time: 'Дольше рабочий день',
+        faster_cooking_multiplier: 'Быстрее пассивная готовка',
+        starting_money: 'Больше денег в начале дня',
+        click_power: 'Готовка кликами эффективнее',
+        money: '+50 денег',
+        lives: '+1 жизнь',
+    },
+    en: {
+        max_ingredients: '+1 max ingredients',
+        money_multiplier: 'More tips',
+        animation_speed: 'Faster animation speed',
+        additional_customer_time: 'Customer patience',
+        customer_demand: 'Less items in order',
+        additional_day_time: 'Longer day time',
+        faster_cooking_multiplier: 'Faster cooking',
+        starting_money: 'Starting money',
+        click_power: 'Click power',
+        money: 'Money + $50',
+        lives: 'Lives + 1',
+    }
+}
+
+function t(key) {
+    // console.log(language)
+    // console.log('key:', key)
+    return translations[language][key] ?? upgrade_translations[language][key];
+}
+function update_html_texts() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+    });
+}
+document.addEventListener('DOMContentLoaded', () => {
+    update_html_texts();
+});
+language_button.addEventListener('click', function() {
+    if (language == 'ru') {
+        language = 'en'
+    } else {
+        language = 'ru'
+    }
+    // console.log('Language changed: ', language)
+    localStorage.setItem('language', language)
+    update_html_texts()
+})
 
 run_upgrades={
     'max_ingredients': {name: '+ 1 max ingredients', type: 'add', base_value: 3, starting_value: 3, value: 3, max: 3, level: 0},
@@ -75,7 +176,7 @@ run_upgrades={
     'faster_cooking_multiplier': {name: 'faster cooking', type: 'multiply', base_value: 1.1, starting_value: 1, value: 1, max: 5, level: 0},
     'starting_money': {name: 'starting money', type: 'multiply', base_value: 50, starting_value: 0, value: 0, max: 5, level: 0},
     'click_power': {name: 'click power', type: 'multiply', base_value: 1.25, starting_value: 1, value: 1, max: 5, level: 0},
-    'money': {name: 'money + 50', type: 'money', base_value: 50, starting_value: 50, value: 50, max: 500, level: ' '},
+    'money': {name: 'money + 50', type: 'money', base_value: 50, starting_value: 50, value: 50, max: 500, level: ''},
     'lives': {name: 'lives + 1', type: 'add', base_value: 3, starting_value: 3, value: 3, max: 3, level: 3},
 }
 
@@ -97,21 +198,99 @@ trays={
     'topping': {bought: false, price: 2000},
 }
 
-// creatre_trays()
+function play_music() {
+    music.pause()
+    let music_id = Math.max(1, Math.round(Math.random()*10))
+    console.log('music id = ', music_id)
+    music.src = 'sounds/music/' + music_list[music_id].file_name
+    music.muted = false
+    music.loop = true
+    music.volume = 0.45
+    music.play()
+    music_name.textContent = music_list[music_id].file_name
+    radio.style.opacity = 0
+    radio.style.animation = 'fade-in 1s ease-in'
+}
+
+radio.addEventListener('animationend', function(e) {
+    if (e.animationName == 'fade-in') {
+        radio.style.opacity = 1
+        setTimeout(() => {
+            console.log('ANIMATION FADE OUT')
+            radio.style.animation = 'fade-out 3s ease-in forwards'
+    }, 1500);
+    }
+})
+
+// customer_image.addEventListener('animationend', function(e) {
+    // if (e.animationName == 'slide-out-opacity') {
+
+function play_sound (sound, volume = 1) {
+    if (!sounds_on) {return}
+    console.log('play sound: ', sound, ", volume: ", volume)
+
+    switch (sound) {
+        case 'button':
+            buttons_audio.pause()
+            buttons_audio.src = 'sounds/click.ogg'
+            buttons_audio.volume = volume
+            buttons_audio.play()
+            break
+        case 'place':
+            sfx_audio.pause()
+            sfx_audio.src = 'sounds/place.ogg'
+            sfx_audio.play()
+            break
+        case 'money_gain':
+            // ui_audio.pause()
+            ui_audio.src = 'sounds/gain_money.ogg'
+            ui_audio.play()
+            break
+        case 'day_end':
+            sfx_audio.pause()
+            sfx_audio.src = 'sounds/day_end.ogg'
+            sfx_audio.play()
+            break
+        case 'scream':
+            sfx_audio.pause()
+            sfx_audio.volume = volume
+            sfx_audio.src = 'sounds/scream.ogg'
+            sfx_audio.play()
+    }
+
+}
+
+sound_button.addEventListener('click', function() {
+    sounds_on = !sounds_on
+    if (sounds_on) {
+        // console.log(sound_button.firstElementChild)
+        sound_button.firstElementChild.src = 'images/sound_icon.png'
+    } else {
+        sound_button.firstElementChild.src = 'images/sound_icon_off.png'
+    }
+})
+music_button.addEventListener('click', function() {
+    music.muted = !music.muted
+    if (!music.muted) {
+        music_button.firstElementChild.src = 'images/music_icon.png'
+    } else {
+        music_button.firstElementChild.src = 'images/music_icon_off.png'
+    }
+})
+
+
 
 let tray_buy_button_exists = false
 function creatre_trays() {
     tray_container.innerHTML = ''
-    // let tray_buy_button_exists = false
-    // tray_buy_button_exists = document.querySelector('.tray-buy-button') ?? false
-    console.log('buy button exists: ', tray_buy_button_exists)
+    // console.log('buy button exists: ', tray_buy_button_exists)
     for (let type in trays) {
         if (trays[type].bought == true) {
-            console.log('creating tray for ', type)
+            // console.log('creating tray for ', type)
             create_tray_type_buttons(type)
         } else {
             if (!tray_buy_button_exists) {
-                console.log('creating buy tray button for ', type)
+                // console.log('creating buy tray button for ', type)
                 create_tray_buy_button(type)
                 tray_buy_button_exists = true
             }
@@ -128,13 +307,13 @@ function create_tray_buy_button(type) {
     tray_type_image.src = 'images/ingredients-order/' + type + '.png'
     // tray_buy_button.style.backgroundImage = 'images/ingredients-order/' + type + '.png'
     tray_buy_button.textContent = '$' + trays[type].price
-    
     // tray_buy_button.addEventListener('click')
 
     tray_container.appendChild(tray_buy_button)
     tray_buy_button.appendChild(tray_type_image)
 
     tray_buy_button.addEventListener('click', function(){
+        play_sound('button')
         if (money >= trays[type].price) {
             money -= trays[type].price
             money_display.textContent = '$' + money
@@ -203,12 +382,15 @@ function create_tray_type_buttons(type) {
 }
 
 function handle_tray_click(ingredient_holder_tray_container, ingredients_on_tray_count_display, ingredient_tray_image, ingredient) {
+    play_sound('button')
     const tray_children = Array.from(ingredient_holder_tray_container.children);    
     if (tray_children.length <= 0 || ingredients_dictionary[ingredient].count <= 0) {return}
 
     console.log('tray_chilidren: ', tray_children)
     console.log('ingredient count: ', ingredients_dictionary[ingredient].count)
-    const ingredient_tray = tray_children[tray_children.length - 1];
+    // const ingredient_tray = tray_children[tray_children.length - 1];
+    const visible_children = tray_children.filter(child => !child.classList.contains('leaving'));
+    const ingredient_tray = visible_children[visible_children.length - 1];
     // const ingredient_tray = tray_children[ingredients_dictionary[ingredient].count-1];
     
     // console.log('last child: ', ingredient_tray)
@@ -216,8 +398,6 @@ function handle_tray_click(ingredient_holder_tray_container, ingredients_on_tray
     // console.log('removing last chinld: ', ingredient_holder_tray_container.lastChild)
     place_on_plate(null, ingredient)
 
-
-    // ingredient_tray.style.zIndex = 10
     // Получаем текущую позицию элемента
     const ingredient_tray_rect = ingredient_tray.getBoundingClientRect();
     const target_rect = plate.lastChild.getBoundingClientRect()
@@ -229,6 +409,7 @@ function handle_tray_click(ingredient_holder_tray_container, ingredients_on_tray
     const deltaX = targetX - (ingredient_tray_rect.left + ingredient_tray_rect.width * 0.5);
     const deltaY = targetY - (ingredient_tray_rect.top + ingredient_tray_rect.height * 0.8);
     // Применяем анимацию через CSS
+    ingredient_tray.classList.add('leaving');
     ingredient_tray.style.transition = 'transform 0.4s ease, opacity 0.3s ease';
     ingredient_tray.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
     ingredient_tray.style.opacity = '0';
@@ -289,6 +470,7 @@ fullscreen_button.addEventListener('click', toggleFullscreen)
 
 // toggleFullscreen()
 function toggleFullscreen() {
+    play_sound('button')
     const elem = document.documentElement; // или document.getElementById("root")
     // console.log('toggle fullscreen')
     if (!document.fullscreenElement) {
@@ -350,9 +532,11 @@ function reset_table() {
 }
 
 if (localStorage.getItem('score')) {
-    score_display.innerText = 'MAX SCORE: DAY ' + localStorage.getItem('score')
+    score_display.innerText = localStorage.getItem('score')
+    // score_display.innerText = t('max_score') + localStorage.getItem('score')
     if (localStorage.getItem('score') == 'null') {
-        score_display.innerText = 'MAX SCORE: DAY 0'
+        score_display.innerText = '0'
+        // score_display.innerText = t('max_score') + '0'
     } else {
         save_found()
     }
@@ -365,6 +549,7 @@ function save() {
     localStorage.setItem('trays', JSON.stringify(trays))
     localStorage.setItem('day', day)
     localStorage.setItem('money', money)
+    localStorage.setItem('language', language)
     score = day
     if (localStorage.getItem('score') && localStorage.getItem('score') < score){
         localStorage.setItem('score', score)
@@ -376,10 +561,14 @@ function load() {
     run_upgrades = JSON.parse(localStorage.getItem('run_upgrades'))
     ingredients_dictionary = JSON.parse(localStorage.getItem('ingredients_dictionary'))
     trays = JSON.parse(localStorage.getItem('trays'))
+    // language = JSON.parse(localStorage.getItem('language'))
     // console.log(ingredients_dictionary)
     // for (ingredient in ingredients_dictionary) {
     //     ingredients_dictionary[ingredient].count = 0
     // }
+    language = localStorage.getItem('language')
+    console.log("language found in save: ", language)
+    update_html_texts()
     update_ingredient_buttons_state()
     update_trays_buttons_state()
     day = JSON.parse(localStorage.getItem('day'))
@@ -655,11 +844,12 @@ function update_hearts() {
 }
 
 day_goal_pay_button.addEventListener('click', function() {
+    play_sound('button')
     // let day_goal = 100 * day
     if (money >= day_goal) {
         money -= day_goal
         day_goal = 0
-        goal_display.textContent = `Day Goal Paid`
+        goal_display.textContent = t('goal_paid')
         day_goal_pay_button.style.display = 'none'
         money_display.textContent = '$' + money
     }
@@ -668,6 +858,7 @@ day_goal_pay_button.addEventListener('click', function() {
 function day_start(){
     // console.log("Day Start")
     save()
+    play_music()
     // console.log("update hearts to: ", run_upgrades['lives'].value)
     update_hearts()
     plate.style.display = 'flex'
@@ -689,9 +880,18 @@ function day_start(){
     score = day
     day_goal = 100 * day
     day_goal_pay_button.style.display = 'flex'
-    goal_display.textContent = `Day Goal: ` + `$${day_goal}`
+    goal_display.textContent = '$'+day_goal
+
+    const goal_text = document.getElementById('goal-text')
+
+    goal_text.textContent = t('goal')
+
+    // goal_display.textContent = t('goal') + `$${day_goal}`
     customer_appear()
-    day_display.textContent = `Day: ${day}`    
+    const day_text = document.getElementById('day-text')
+    // day_display.textContent = t('day'), day    
+    day_text.textContent = t('day'), 
+    day_display.textContent = day
     
     timer = setInterval(() => {
         seconds -= 1
@@ -705,6 +905,7 @@ function day_start(){
         }
         if (minutes == 0 && seconds == 5) {
             time_display.style.animation = 'flash 0.5s ease-in-out infinite'
+            play_sound('day_end')
         }
         if (minutes < 0) {
             minutes = 0
@@ -764,7 +965,7 @@ function fill_order() {
     order.style.animation = 'fade-out ' + 0.3 / run_upgrades['animation_speed'].value + 's ease-in-out'
 }
 order.addEventListener('animationend', function(e) {
-    order.style.top = '0'
+    // order.style.top = '0'
     if (e.animationName == 'fade-out') {
         order.innerHTML = ""
         full_order = []
@@ -775,20 +976,22 @@ order.addEventListener('animationend', function(e) {
             }
         }
         const items_in_order = Math.round(Math.max(1, Math.min(day*1.2 + Math.random()*2, 12) / run_upgrades['customer_demand'].value))
-            for (let i = 0; i < items_in_order; i++)  {
-                const order_item = ingredients_avaliable[Math.floor(Math.random()*ingredients_avaliable.length)]
-                const order_item_display = document.createElement('img')
-                order_item_display.className = 'order-item-display'
-                order_item_display.textContent = order_item
-                let order_item_type = ingredients_dictionary[order_item].type
-                order_item_display.src = `images/ingredients-order/${order_item_type}.png`
-                order.appendChild(order_item_display)
-                full_order.push(order_item)
-            }
-            order.style.animation = 'fade-in 0.2s ease-in-out'
+        for (let i = 0; i < items_in_order; i++)  {
+            const order_item = ingredients_avaliable[Math.floor(Math.random()*ingredients_avaliable.length)]
+            const order_item_display = document.createElement('img')
+            order_item_display.className = 'order-item-display'
+            order_item_display.textContent = order_item
+            let order_item_type = ingredients_dictionary[order_item].type
+            order_item_display.src = `images/ingredients-order/${order_item_type}.png`
+            order.appendChild(order_item_display)
+            full_order.push(order_item)
+        }
+        
+        order.style.animation = 'fade-in 0.2s ease-in-out'
     }
 })
 function tap_ingredient(ingredient) {
+    play_sound('button', 0.7)
     if (ingredients_dictionary[ingredient].count >= run_upgrades['max_ingredients'].value) {return}
     ingredients_dictionary[ingredient].bits += 10 * run_upgrades['click_power'].value
     const ingredient_button = document.getElementById(ingredient)
@@ -802,6 +1005,7 @@ function tap_ingredient(ingredient) {
 }
 
 function upgrade_ingredient(upgrade_button, upgrade_level, ingredient, cost){
+    play_sound('button')
     if (money < cost) {return}
     money -= cost
     ingredients_dictionary[ingredient].level += 1
@@ -909,6 +1113,7 @@ function add_ingredient(ingredient) {
 }
 
 function place_on_plate(movable_item, ingredient) {
+    play_sound('place')
     movable_item && table.removeChild(movable_item)
     ingredients_dictionary[ingredient].count -= 1
     update_ingredient_buttons_state()
@@ -973,9 +1178,8 @@ function give_plate(fail) {
         }
         money_gain = Math.round(money_for_plate * run_upgrades['money_multiplier'].value)
         money += money_gain
-        
+        play_sound('money_gain')
         money_display.textContent = '$' + money.toString()
-        
         money_gain_display.textContent = '+' + money_gain
         // money_display.appendChild(money_gain_display)
         // money_gain_display.style.opacity = '1'
@@ -1004,6 +1208,7 @@ function give_plate(fail) {
 
         
         show_emote('scream')
+        play_sound('scream', 0.8)
         // lose()
         run_upgrades['lives'].value -= 1
         // update_hearts()
@@ -1061,6 +1266,8 @@ plate.addEventListener('animationend', function(e) {
 function lose() {
     in_game = false
     clearInterval(timer)
+    music.pause()
+    play_sound('lose')
     // console.log("LOSE")
     wait_timer.style.animation = ''
     
@@ -1073,8 +1280,12 @@ function lose() {
 
 function day_end() {
     in_game = false
+    music.pause()
     // let day_goal = 100 * day
-    goal_display.textContent = `Day Goal:` + `$${day_goal}`
+    // goal_display.textContent = t('goal') + `$${day_goal}`
+    goal_display.textContent = '$'+day_goal
+
+    // goal_display.textContent = t('goal') + `$${day_goal}`
     if (money >= day_goal) {
         money -= day_goal
         // clearInterval(timer)
@@ -1096,7 +1307,8 @@ function show_upgrades() {
         let run_upgrade_button = document.createElement('button')
         run_upgrade_button.className = 'run-upgrade-button'
         run_upgrade_button.id = random_upgrade
-        run_upgrade_button.textContent = run_upgrades[random_upgrade].name
+        run_upgrade_button.textContent = t(random_upgrade)
+        // run_upgrade_button.textContent = run_upgrades[random_upgrade].name
         // run_upgrade_button.textContent = '[' + run_upgrades[random_upgrade].level + '] — ' + run_upgrades[random_upgrade].name
         upgrade_container.appendChild(run_upgrade_button)
         if (run_upgrades[random_upgrade].type == 'add' || run_upgrades[random_upgrade].type == 'multiply') {
@@ -1115,6 +1327,7 @@ function show_upgrades() {
 }
 
 function choose_upgrade (upgrade_id) {
+    play_sound('button')
     // console.log(upgrade_id)
     run_upgrades[upgrade_id].level += 1
     menu.style.display = 'none'
@@ -1157,9 +1370,25 @@ function save_found() {
     continue_button.id = 'continue-button'
     continue_button.className = 'menu-button'
     let continue_day = JSON.parse(localStorage.getItem('day'))
-    continue_button.textContent = 'Continue ' + ' Day ' + (continue_day + 1)
     play_subcontainer.appendChild(continue_button)
+
+
+    const continue_text = document.createElement('span')
+    continue_text.setAttribute('data-i18n', 'continue')
+    continue_text.textContent = t('continue')
+    continue_button.appendChild(continue_text)
+
+    const continue_button_day = document.createElement('div')
+    continue_button_day.textContent = continue_day + 1
+    continue_button.appendChild(continue_button_day)
+    
+    language = localStorage.getItem('language')
+    console.log("language found in save: ", language)
+    update_html_texts()
+
+
     continue_button.addEventListener('click', function() {
+        play_sound('button')
         console.log('continue button pressed')
         menu.style.display = 'none'
         play_subcontainer.style.display = 'none'
@@ -1175,12 +1404,14 @@ function save_found() {
 }
 
 again_button.addEventListener('click', function() {
+    play_sound('button')
     menu.style.display = 'none'
     fail_container.style.display = 'none'
     reset(true)
     show_upgrades()
 })
 start_button.addEventListener('click', function() {
+    play_sound('button')
     window.scrollTo(0, 1);
     menu.style.display = 'none'
     play_container.style.display = 'none'
