@@ -381,10 +381,6 @@ button:disabled {
     right: 0%;
     height: auto;
     width: auto;
-    /* max-height: 3.5dvh; */
-    /* max-width: 3.5dvh; */
-    /* padding:0px; */
-    /* gap: 1vh; */
     padding: 1dvh;
     background: none;
     border: 0dvh solid rgb(139, 70, 141, 0);
@@ -395,8 +391,9 @@ button:disabled {
 .settings-panel button {
     /* position: relative; */
     display: flex;
-    /* bottom: 54.5%; */
     height: 4dvh;
+    min-height: 3.6dvh;
+    min-width: 3.6dvh;
     max-height: 3.6dvh;
     max-width: 3.6dvh;
     aspect-ratio: 1/1;
