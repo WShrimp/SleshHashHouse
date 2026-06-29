@@ -62,6 +62,8 @@ const music_list = {
     10: {file_name: '704387__timbre__hum-free-loopable-remix-of-migfus20s-freesound-703912.ogg'},
 }
 
+const goals = [100, 200, 300, 500, 900, 1200, 2000, 5000]
+
 // savable
 let day = 0
 let starting_money = 50
@@ -947,7 +949,10 @@ function day_start(){
         seconds = 0 + run_upgrades['additional_day_time'].value}
     day += 1
     score = day
-    day_goal = 100 * day
+    // day_goal = 100 * day
+    day_goal = day <= 8 
+        ? goals[day - 1] 
+        : Math.round(goals[7] * Math.pow(1.4, day - 8))
     day_goal_pay_button.style.display = 'flex'
     goal_container.style.display = 'flex'
     goal_reached.style.display = 'none'
