@@ -1008,31 +1008,23 @@ function start_day_timer() {
 }
 
 function customer_appear() {
-    if (!in_game) {
-        console.log('customer appear in_game check: false')
-        return
-    };
+    if (!in_game) return
     console.log('customer appear')
     load_image_timer = setTimeout(() => {
-        console.log('adding spinning animation')
         customer_load_icon.classList.add('spinning')
     }, 2000)
-    clearTimeout(away_timer)
+    clearTimeout(timer)
     fill_order()
     customer_image.style.animation = 'slide-out-opacity ' + 0.6 / run_upgrades['animation_speed'].value + 's ease-in-out'
 }
 customer_image.addEventListener('animationend', function(e) {
-    console.log('customer animation endeed')
     if (e.animationName == 'slide-out-opacity') {
         console.log('animation: slide-out-opacity')
         is_monster = Boolean(Math.round(Math.random()))
-        // console.log("is_monster: ", is_monster)
         let image_list = is_monster ? monster_images : human_images
         
         customer_image.src = image_list[Math.floor(Math.random( )*image_list.length)]
         customer_image.style.display = 'none'
-    } else {
-        consol.log('animation: appear')
     }
 })
 
