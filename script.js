@@ -1,4 +1,4 @@
-// jesus crist this was supposed to be a small project
+// jesus christ this was supposed to be a small project
 
 const table = document.getElementById('table')
 const table_container = document.querySelector('.table-container')
@@ -75,7 +75,7 @@ let min_wait_time = 4
 // let language = 'en'
 
 // temporary
-let day_min_time = 3 //3
+let day_min_time = 1 //3
 let seconds = 0
 let minutes
 
