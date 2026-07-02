@@ -65,7 +65,7 @@ const music_list = {
     10: {file_name: '704387__timbre__hum-free-loopable-remix-of-migfus20s-freesound-703912.ogg'},
 }
 
-const goals = [100, 200, 300, 500, 900, 1200, 2000, 5000]
+// const goals = [100, 200, 300, 500, 800, 1200, 2000, 5000]
 
 // savable
 let day = 0
@@ -75,7 +75,7 @@ let min_wait_time = 4
 // let language = 'en'
 
 // temporary
-let day_min_time = 1 //3
+let day_min_time = 3 //3
 let seconds = 0
 let minutes
 
@@ -214,16 +214,15 @@ run_upgrades={
     'money': {name: 'money + 50', type: 'money', base_value: 50, starting_value: 50, value: 50, max: 500, level: ''},
     'lives': {name: 'lives + 1', type: 'add', base_value: 3, starting_value: 3, value: 3, max: 3, level: 3},
 }
-
 ingredients_dictionary={ 
     "m-meat": { type: 'meat', is_monster: true, count: 0, difficulity: 40, initial_level: 0, level: 0, bits: 0},
     "h-meat": { type: 'meat', is_monster: false, count: 0, difficulity: 40, initial_level: 0, level: 0, bits: 0},
-    "m-filling": { type : 'filling', is_monster: true, count: 0, difficulity: 70, initial_level: -1, level: -1, bits: 0},
-    "h-filling": { type : 'filling', is_monster: false, count: 0, difficulity: 70, initial_level: -1, level: -1, bits: 0},
+    "m-filling": { type : 'filling', is_monster: true, count: 0, difficulity: 60, initial_level: -1, level: -1, bits: 0},
+    "h-filling": { type : 'filling', is_monster: false, count: 0, difficulity: 60, initial_level: -1, level: -1, bits: 0},
     "m-sauce": { type: 'sauce', is_monster: true, count: 0, difficulity: 100, initial_level: -1, level: -1, bits: 0},
     "h-sauce": { type: 'sauce', is_monster: false, count: 0, difficulity: 100, initial_level: -1, level: -1, bits: 0},
-    "m-topping": { type: 'topping', is_monster: true, count: 0, difficulity: 200, initial_level: -1, level: -1, bits: 0},
-    "h-topping": { type: 'topping', is_monster: false, count: 0, difficulity: 200, initial_level: -1, level: -1, bits: 0},
+    "m-topping": { type: 'topping', is_monster: true, count: 0, difficulity: 180, initial_level: -1, level: -1, bits: 0},
+    "h-topping": { type: 'topping', is_monster: false, count: 0, difficulity: 180, initial_level: -1, level: -1, bits: 0},
 };
 
 trays={
@@ -957,9 +956,11 @@ function day_start(){
     day += 1
     score = day
     // day_goal = 100 * day
-    day_goal = day <= 8 
-        ? goals[day - 1] 
-        : Math.round(goals[7] * Math.pow(1.4, day - 8))
+    // day_goal = day <= 8 
+    //     ? goals[day - 1] 
+    //     : Math.round(goals[7] * Math.pow(1.4, day - 8))
+    day_goal = 100 * Math.pow(1.6, day-1)
+    day_goal = Math.ceil(day_goal*0.01) * 100
     day_goal_pay_button.style.display = 'flex'
     goal_container.style.display = 'flex'
     goal_reached.style.display = 'none'
@@ -1266,8 +1267,10 @@ function give_plate(fail) {
         // console.log("Correct!")
         for (let i = 0; i < full_plate.length; i++) {
             money_for_plate += Math.round((ingredients_dictionary[full_plate[i]].difficulity - 20) / 4)
+            console.log
         }
         money_gain = Math.round(money_for_plate * run_upgrades['money_multiplier'].value)
+        // money_gain = money_for_plate
         money += money_gain
         play_sound('money_gain')
         money_display.textContent = '$' + money.toString()
